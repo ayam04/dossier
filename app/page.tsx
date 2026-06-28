@@ -180,7 +180,7 @@ export default function Home() {
         </p>
       )}
 
-      {output && (
+      {(graphics || display.trim()) && (
         <section className="mt-6 rounded-lg border border-line bg-panel p-5">
           <div className="mb-3 flex items-center justify-end gap-2">
             {shareMsg && <span className="mr-auto text-xs text-accent">{shareMsg}</span>}
@@ -205,10 +205,10 @@ export default function Home() {
               {sharing ? "Sharing..." : "Share"}
             </button>
           </div>
+          <DossierExtras graphics={graphics} meta={meta} />
           <div className="dossier text-sm leading-relaxed">
             <ReactMarkdown>{display}</ReactMarkdown>
           </div>
-          <DossierExtras graphics={graphics} meta={meta} />
         </section>
       )}
 

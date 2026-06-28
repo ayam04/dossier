@@ -50,19 +50,9 @@ function buildPrompt(domain: string, offer: string, text: string): string {
 
 Always begin by using Google Search to research what has happened at this company in the last 12 months, even if the page text below already looks sufficient. The homepage text and your own training data are not current enough on their own, so the Live signals section must be built from fresh search results that you cite. Run several searches: recent news, funding, hiring, product launches, leadership changes.
 
-Then produce a one-page deal dossier in markdown. Be specific, cite concrete facts, no filler.
+Then output two parts in this exact order.
 
-### 1. What they do
-### 2. Live signals
-Dated developments from the last 12 months (news, funding, hiring, product launches, leadership changes) found through your live searches, that suggest whether they are in a buying cycle. Cite specific sources.
-### 3. Likely priorities and pains
-### 4. Value thesis
-Why ${offer} should matter to them. Three bullets.
-### 5. Suggested first-meeting opener
-Two sentences.
-### 6. Three discovery questions
-
-After the dossier, append one fenced code block tagged json (and nothing after it) with this exact shape. Valid JSON, no comments, no trailing commas:
+PART 1, first: one fenced code block tagged json with this exact shape. Valid JSON, no comments, no trailing commas:
 \`\`\`json
 {
   "company": "one sentence on what they do",
@@ -74,6 +64,18 @@ After the dossier, append one fenced code block tagged json (and nothing after i
 }
 \`\`\`
 Only include signals you actually found, each with a date. Keep the JSON compact.
+
+PART 2, immediately after the json block: the one-page deal dossier in markdown. Be specific, cite concrete facts, no filler.
+
+### 1. What they do
+### 2. Live signals
+Dated developments from the last 12 months (news, funding, hiring, product launches, leadership changes) found through your live searches, that suggest whether they are in a buying cycle. Cite specific sources.
+### 3. Likely priorities and pains
+### 4. Value thesis
+Why ${offer} should matter to them. Three bullets.
+### 5. Suggested first-meeting opener
+Two sentences.
+### 6. Three discovery questions
 
 Account: ${domain}
 What we sell: ${offer}
