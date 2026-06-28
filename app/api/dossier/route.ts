@@ -45,11 +45,15 @@ async function crawl(domain: string): Promise<{ text: string; pages: string[] }>
 }
 
 function buildPrompt(domain: string, offer: string, text: string): string {
-  return `You are a deal-engineering analyst. A sales rep is pursuing the account below. Use Google Search for the latest information, then produce a one-page deal dossier in markdown. Be specific, cite concrete facts, no filler.
+  return `You are a deal-engineering analyst. A sales rep is pursuing the account below.
+
+Always begin by using Google Search to research what has happened at this company in the last 12 months, even if the page text below already looks sufficient. The homepage text and your own training data are not current enough on their own, so the Live signals section must be built from fresh search results that you cite. Run several searches: recent news, funding, hiring, product launches, leadership changes.
+
+Then produce a one-page deal dossier in markdown. Be specific, cite concrete facts, no filler.
 
 ### 1. What they do
 ### 2. Live signals
-Recent news, funding, hiring, product launches, or leadership changes from roughly the last 12 months that suggest whether they are in a buying cycle. Cite specifics.
+Dated developments from the last 12 months (news, funding, hiring, product launches, leadership changes) found through your live searches, that suggest whether they are in a buying cycle. Cite specific sources.
 ### 3. Likely priorities and pains
 ### 4. Value thesis
 Why ${offer} should matter to them. Three bullets.
