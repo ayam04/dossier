@@ -8,6 +8,15 @@ type Item = { domain: string; offer: string; output: string; ts: number };
 
 const KEY = "deal-dossier-history";
 
+function normalizeDomain(v: string): string {
+  return v
+    .trim()
+    .replace(/^https?:\/\//i, "")
+    .replace(/\/.*$/, "")
+    .replace(/^www\./i, "")
+    .toLowerCase();
+}
+
 export default function Home() {
   const [domain, setDomain] = useState("");
   const [offer, setOffer] = useState("");
@@ -55,7 +64,8 @@ export default function Home() {
   }
 
   async function generate() {
-    if (!domain.trim() || loading) return;
+    const d = normalizeDomain(domain);
+    if (!d || loading) return;
     setLoading(true);
     setError("");
     setOutput("");
@@ -64,7 +74,7 @@ export default function Home() {
       const res = await fetch("/api/dossier", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ domain: domain.trim(), offer: offer.trim() }),
+        body: JSON.stringify({ domain: d, offer: offer.trim() }),
       });
       if (!res.ok || !res.body) {
         throw new Error((await res.text()) || `request failed (${res.status})`);
@@ -78,7 +88,7 @@ export default function Home() {
         setOutput(acc);
       }
       if (acc.trim()) {
-        save({ domain: domain.trim(), offer: offer.trim(), output: acc, ts: Date.now() });
+        save({ domain: d, offer: offer.trim(), output: acc, ts: Date.now() });
       }
     } catch (e) {
       setError((e as Error)?.message || "something went wrong");
@@ -133,7 +143,7 @@ export default function Home() {
       <div className="flex flex-col gap-3 sm:flex-row">
         <input
           className="flex-1 rounded-md border border-line bg-panel px-3 py-2 text-sm outline-none focus:border-accent"
-          placeholder="company domain (e.g. stripe.com)"
+          placeholder="company domain (e.g. amazon.com)"
           value={domain}
           onChange={(e) => setDomain(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && generate()}
@@ -153,6 +163,13 @@ export default function Home() {
           {loading ? "Researching..." : "Generate"}
         </button>
       </div>
+
+      {domain.trim() && !domain.includes(".") && (
+        <p className="mt-2 text-xs text-muted">
+          That looks like a name, not a domain. Add the extension, like{" "}
+          <span className="text-accent">amazon.com</span>. A bare name still works via web search, but a full domain is sharper.
+        </p>
+      )}
 
       {error && (
         <p className="mt-4 rounded-md border border-red-500/40 bg-red-500/10 px-3 py-2 text-sm text-red-300">

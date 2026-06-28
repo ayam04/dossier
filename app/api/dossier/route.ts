@@ -16,7 +16,11 @@ function strip(html: string): string {
 async function fetchText(url: string): Promise<string> {
   try {
     const res = await fetch(url, {
-      headers: { "User-Agent": "Mozilla/5.0" },
+      headers: {
+        "User-Agent":
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36",
+        Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+      },
       signal: AbortSignal.timeout(8000),
     });
     if (!res.ok) return "";
@@ -27,9 +31,14 @@ async function fetchText(url: string): Promise<string> {
 }
 
 async function crawl(domain: string): Promise<{ text: string; pages: string[] }> {
-  const base = domain.startsWith("http") ? domain : `https://${domain}`;
-  const origin = new URL(base).origin;
-  const urls = [base, `${origin}/about`, `${origin}/pricing`];
+  let origin: string;
+  try {
+    const base = domain.startsWith("http") ? domain : `https://${domain}`;
+    origin = new URL(base).origin;
+  } catch {
+    return { text: "", pages: [] };
+  }
+  const urls = [origin, `${origin}/about`, `${origin}/pricing`];
   const parts = await Promise.all(urls.map(fetchText));
   const pages = urls.filter((_, i) => parts[i]);
   return { text: parts.filter(Boolean).join("\n\n").slice(0, 12000), pages };
@@ -65,7 +74,7 @@ Account: ${domain}
 What we sell: ${offer}
 
 Homepage and key pages:
-${text}`;
+${text || "(the site could not be fetched directly; rely on Google Search to research the company)"}`;
 }
 
 function transient(e: unknown): boolean {
@@ -107,7 +116,6 @@ export async function POST(req: Request) {
   if (!apiKey) return new Response("GENAI_API_KEY is not set", { status: 500 });
 
   const { text, pages } = await crawl(domain);
-  if (!text) return new Response("could not read that site", { status: 422 });
 
   const ai = new GoogleGenAI({ apiKey });
   const contents = buildPrompt(domain, (offer || "(not specified)").toString(), text);
