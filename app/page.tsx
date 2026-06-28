@@ -7,6 +7,7 @@ import { splitDossier, DossierExtras } from "./components/dossier-graphics";
 type Item = { domain: string; offer: string; output: string; ts: number };
 
 const KEY = "deal-dossier-history";
+const API_KEY = process.env.NEXT_PUBLIC_API_KEY || "";
 
 function normalizeDomain(v: string): string {
   return v
@@ -42,7 +43,9 @@ export default function Home() {
       setLoading(true);
       setError("");
       try {
-        const res = await fetch(`/api/share?id=${encodeURIComponent(id)}`);
+        const res = await fetch(`/api/share?id=${encodeURIComponent(id)}`, {
+          headers: { "x-api-key": API_KEY },
+        });
         if (!res.ok) throw new Error((await res.text()) || "could not load shared dossier");
         const d = await res.json();
         setOutput(d.output || "");
@@ -73,7 +76,7 @@ export default function Home() {
     try {
       const res = await fetch("/api/dossier", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", "x-api-key": API_KEY },
         body: JSON.stringify({ domain: d, offer: offer.trim() }),
       });
       if (!res.ok || !res.body) {
@@ -114,7 +117,7 @@ export default function Home() {
     try {
       const res = await fetch("/api/share", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", "x-api-key": API_KEY },
         body: JSON.stringify({ output, domain: domain.trim() }),
       });
       if (!res.ok) throw new Error((await res.text()) || "share failed");
@@ -193,18 +196,19 @@ export default function Home() {
             >
               Download .md
             </button>
+            <span className="h-4 w-px bg-line" aria-hidden />
             <button
               onClick={share}
               disabled={sharing}
-              className="rounded border border-line px-2 py-1 text-xs text-muted hover:text-white disabled:opacity-40"
+              className="rounded bg-accent px-2.5 py-1 text-xs font-medium text-black transition hover:bg-accent/90 disabled:opacity-40"
             >
               {sharing ? "Sharing..." : "Share"}
             </button>
           </div>
-          <DossierExtras graphics={graphics} meta={meta} />
           <div className="dossier text-sm leading-relaxed">
             <ReactMarkdown>{display}</ReactMarkdown>
           </div>
+          <DossierExtras graphics={graphics} meta={meta} />
         </section>
       )}
 

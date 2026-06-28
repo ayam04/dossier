@@ -1,4 +1,5 @@
 import { GoogleGenAI } from "@google/genai";
+import { requireApiKey } from "../../../lib/auth";
 
 export const runtime = "nodejs";
 export const maxDuration = 300;
@@ -112,6 +113,8 @@ async function startStream(ai: GoogleGenAI, contents: string) {
 }
 
 export async function POST(req: Request) {
+  const denied = requireApiKey(req);
+  if (denied) return denied;
   const { domain, offer } = await req.json().catch(() => ({}));
   if (!domain || typeof domain !== "string") {
     return new Response("domain is required", { status: 400 });

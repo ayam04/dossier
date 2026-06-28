@@ -185,7 +185,7 @@ export function DossierExtras({ graphics, meta }: { graphics: Graphics | null; m
       0);
   if (!hasGraphics && !meta) return null;
   return (
-    <div className="mb-6 flex flex-col gap-5 border-b border-line pb-5">
+    <div className="mt-6 flex flex-col gap-5 border-t border-line pt-5">
       {meta && <ActivityStrip meta={meta} />}
       {graphics?.company && <p className="text-sm text-ink">{graphics.company}</p>}
       {!!graphics?.signals?.length && (

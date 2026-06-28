@@ -1,9 +1,12 @@
 import { ObjectId } from "mongodb";
 import { getDb } from "../../../lib/mongodb";
+import { requireApiKey } from "../../../lib/auth";
 
 export const runtime = "nodejs";
 
 export async function POST(req: Request) {
+  const denied = requireApiKey(req);
+  if (denied) return denied;
   const { output, domain } = await req.json().catch(() => ({}));
   if (!output || typeof output !== "string") {
     return new Response("output is required", { status: 400 });
@@ -25,6 +28,8 @@ export async function POST(req: Request) {
 }
 
 export async function GET(req: Request) {
+  const denied = requireApiKey(req);
+  if (denied) return denied;
   const id = new URL(req.url).searchParams.get("id") || "";
   if (!/^[a-f0-9]{24}$/i.test(id)) return new Response("bad id", { status: 400 });
   try {

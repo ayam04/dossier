@@ -11,6 +11,7 @@ Drop a company domain, get a grounded, meeting-ready deal dossier. A Next.js app
    Set `GENAI_API_KEY` to your key from https://aistudio.google.com/apikey
    Set `MONGODB_URI` to a MongoDB connection string (e.g. an Atlas free cluster). Only needed for shareable links; everything else works without it.
    Set `envo` to `dev` locally; set it to `prod` on your deployment so share links point to your domain (dossier.ayam.codes) instead of the raw host.
+   Set `NEXT_PUBLIC_API_KEY` to the key that gates the API routes. The browser sends it on every request and the server rejects requests without it.
 2. Install and run:
    ```bash
    npm install
@@ -22,7 +23,7 @@ Drop a company domain, get a grounded, meeting-ready deal dossier. A Next.js app
 
 1. Push this folder to a GitHub repo.
 2. On vercel.com, "Add New Project" and import the repo.
-3. Under Settings > Environment Variables, add `GENAI_API_KEY`, `MONGODB_URI`, and `envo` (set to `prod`).
+3. Under Settings > Environment Variables, add `GENAI_API_KEY`, `MONGODB_URI`, `envo` (set to `prod`), and `NEXT_PUBLIC_API_KEY`.
 4. Deploy. The API route runs as a serverless function; the frontend is static.
 
 ## Notes
@@ -32,3 +33,4 @@ Drop a company domain, get a grounded, meeting-ready deal dossier. A Next.js app
 - Retry/fallback covers errors before streaming starts; a mid-stream outage shows a truncated dossier rather than auto-retrying.
 - The model emits a compact JSON block alongside the prose; the frontend turns it into an interactive signals timeline, priority/pain chips, and value cards. If that block is missing or truncated, graphics are skipped and the prose still renders.
 - Share stores a snapshot of the dossier in MongoDB and returns a `/?id=...` link. Opening it reads the stored snapshot, so it costs no model call and never changes.
+- All API routes require an `x-api-key` header matching `NEXT_PUBLIC_API_KEY`. Since the app calls them from the browser, the key ships in the client bundle: it deters casual and scripted hits but is not a strong secret. For stronger protection, add same-origin enforcement plus rate limiting.
