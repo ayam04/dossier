@@ -16,7 +16,9 @@ export async function POST(req: Request) {
       domain: typeof domain === "string" ? domain.slice(0, 200) : "",
       createdAt: new Date(),
     });
-    return Response.json({ id: r.insertedId.toString() });
+    const id = r.insertedId.toString();
+    const base = process.env.envo === "prod" ? "https://dossier.ayam.codes" : "http://localhost:3000";
+    return Response.json({ id, url: `${base}/?id=${id}` });
   } catch (e) {
     return new Response(`share failed: ${(e as Error)?.message ?? e}`, { status: 500 });
   }

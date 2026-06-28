@@ -108,8 +108,8 @@ export default function Home() {
         body: JSON.stringify({ output, domain: domain.trim() }),
       });
       if (!res.ok) throw new Error((await res.text()) || "share failed");
-      const { id } = await res.json();
-      await navigator.clipboard.writeText(`${window.location.origin}/?id=${id}`);
+      const { id, url } = await res.json();
+      await navigator.clipboard.writeText(url || `${window.location.origin}/?id=${id}`);
       setShareMsg("Link copied");
     } catch (e) {
       setShareMsg((e as Error)?.message || "share failed");

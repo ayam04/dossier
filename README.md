@@ -10,6 +10,7 @@ Drop a company domain, get a grounded, meeting-ready deal dossier. A Next.js app
    ```
    Set `GENAI_API_KEY` to your key from https://aistudio.google.com/apikey
    Set `MONGODB_URI` to a MongoDB connection string (e.g. an Atlas free cluster). Only needed for shareable links; everything else works without it.
+   Set `envo` to `dev` locally; set it to `prod` on your deployment so share links point to your domain (dossier.ayam.codes) instead of the raw host.
 2. Install and run:
    ```bash
    npm install
@@ -21,7 +22,7 @@ Drop a company domain, get a grounded, meeting-ready deal dossier. A Next.js app
 
 1. Push this folder to a GitHub repo.
 2. On vercel.com, "Add New Project" and import the repo.
-3. Under Settings > Environment Variables, add `GENAI_API_KEY` and `MONGODB_URI`.
+3. Under Settings > Environment Variables, add `GENAI_API_KEY`, `MONGODB_URI`, and `envo` (set to `prod`).
 4. Deploy. The API route runs as a serverless function; the frontend is static.
 
 ## Notes

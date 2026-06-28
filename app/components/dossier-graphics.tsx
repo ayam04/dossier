@@ -74,18 +74,16 @@ function ActivityStrip({ meta }: { meta: Meta }) {
   const searches = meta.searches ?? [];
   return (
     <div className="flex flex-wrap items-center gap-2 font-mono text-[11px] text-muted">
-      <span className="text-accent">agent run</span>
-      <Tip label={crawled.length ? `Read these pages directly from the site: ${crawled.join(", ")}` : "No pages were readable on the site."}>
+      <span className="flex items-center text-accent">
+        agent run
+        <Hint label="A quick log of what the agent did to research this account before writing the dossier." />
+      </span>
+      <Tip label={crawled.length ? `Pages the agent read directly from their site: ${crawled.join(", ")}` : "No pages were readable on the site."}>
         <Badge>crawled {crawled.length} page{crawled.length === 1 ? "" : "s"}</Badge>
       </Tip>
-      <Tip label={searches.length ? `Live Google searches the model ran: ${searches.join("  •  ")}` : "No live searches were needed."}>
+      <Tip label={searches.length ? `Live Google searches the agent ran while researching: ${searches.join("  •  ")}` : "No live searches were needed."}>
         <Badge>ran {searches.length} search{searches.length === 1 ? "" : "es"}</Badge>
       </Tip>
-      {meta.model && (
-        <Tip label="The model that produced this dossier (it falls back automatically if the first is busy).">
-          <Badge>{meta.model}</Badge>
-        </Tip>
-      )}
     </div>
   );
 }
@@ -114,11 +112,14 @@ function Timeline({ signals }: { signals: Signal[] }) {
   );
 }
 
-function Chips({ items, label }: { items: string[]; label: string }) {
+function Chips({ items, label, hint }: { items: string[]; label: string; hint?: string }) {
   const [on, setOn] = useState<Set<number>>(new Set());
   return (
     <div>
-      <h3 className="mb-1.5 font-mono text-[10px] uppercase tracking-widest text-muted">{label}</h3>
+      <h3 className="mb-1.5 flex items-center font-mono text-[10px] uppercase tracking-widest text-muted">
+        {label}
+        {hint && <Hint label={hint} />}
+      </h3>
       <div className="flex flex-wrap gap-1.5">
         {items.map((it, i) => {
           const active = on.has(i);
@@ -151,7 +152,10 @@ function ValueCards({ value }: { value: ValuePoint[] }) {
   const [open, setOpen] = useState<number | null>(0);
   return (
     <div>
-      <h3 className="mb-1.5 font-mono text-[10px] uppercase tracking-widest text-muted">Why it matters</h3>
+      <h3 className="mb-1.5 flex items-center font-mono text-[10px] uppercase tracking-widest text-muted">
+        Why it matters
+        <Hint label="The agent's thesis for why your offer fits this account. Click a card to see the reasoning." />
+      </h3>
       <div className="grid gap-2 sm:grid-cols-3">
         {value.map((v, i) => {
           const isOpen = open === i;
@@ -186,14 +190,29 @@ export function DossierExtras({ graphics, meta }: { graphics: Graphics | null; m
       {graphics?.company && <p className="text-sm text-ink">{graphics.company}</p>}
       {!!graphics?.signals?.length && (
         <div>
-          <h3 className="mb-2 font-mono text-[10px] uppercase tracking-widest text-muted">Signals timeline</h3>
+          <h3 className="mb-2 flex items-center font-mono text-[10px] uppercase tracking-widest text-muted">
+            Signals timeline
+            <Hint label="Dated events the agent found in live research: funding, hiring, launches, leadership. Newest first. Click any node to expand the detail." />
+          </h3>
           <Timeline signals={graphics.signals} />
         </div>
       )}
       {(!!graphics?.priorities?.length || !!graphics?.pains?.length) && (
         <div className="grid gap-4 sm:grid-cols-2">
-          {!!graphics?.priorities?.length && <Chips items={graphics.priorities} label="Priorities (click to triage)" />}
-          {!!graphics?.pains?.length && <Chips items={graphics.pains} label="Pains" />}
+          {!!graphics?.priorities?.length && (
+            <Chips
+              items={graphics.priorities}
+              label="Priorities"
+              hint="What likely matters most to this account right now, inferred by the agent from its research. Click to mark the ones you plan to target."
+            />
+          )}
+          {!!graphics?.pains?.length && (
+            <Chips
+              items={graphics.pains}
+              label="Pains"
+              hint="Problems the agent inferred they are probably facing, worth probing in your discovery questions."
+            />
+          )}
         </div>
       )}
       {!!graphics?.value?.length && <ValueCards value={graphics.value} />}
